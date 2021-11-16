@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LEDの動作選択</title>
+  </head>
+  <body onLoad="pageLoad()">
+    <img src="./image/ST_Skeleton_onWhite.png"  />
+    <h2>LEDの「動作」を選択してください</h2>
+      <select name="actionlist" id="actionlist"></select>
+      <br />
+      <br />
+      <input id="nextButton" type="button" value="次へ" onclick="nextButton()" />
+  </body>
+  <script>
+    var query;
+    /* ページ読み込み処理 */
+    function pageLoad() {
+    	createLEDActionList();
+    	query = window.location.search;
+    }
+    /* 登録しているLED動作の一覧取得 */
+    function createLEDActionList() {
+    	// 選択可能な動作一覧をJSONで取得要求
+    	var actionurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=4";
+    	fetch(actionurl)
+    		.then(function(response) {
+    			return response.json();
+    		})
+    		.then(function(actionsJson) {
+    			// 一覧のselect要素を取得する
+				const selectName = document.getElementById('actionlist');
+    			
+    			for (var i=0; i < actionsJson.length; i++) {
+    				var actionData = actionsJson[i];
+    				var option = document.createElement('option');
+    				option.value = actionData.actionID;
+    				option.textContent = actionData.displayName;
+    				selectName.appendChild(option);
+    			}
+    	});
+    }
+    /* 次へボタン押下処理 */
+    function nextButton() {
+    	var selectedActionValue = document.getElementById('actionlist').value;
+    	location.href = "./sender.html" + query + "&" + "action=" + selectedActionValue;
+    }
+  </script>
+</html>

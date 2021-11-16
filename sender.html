@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>応援する色を送信</title>
+  </head>
+  <body onLoad="pageLoad()">
+    <img src="./image/ST_Skeleton_onWhite.png"  />
+    <h2>応援したいメンバーを選択してください</h2>
+      <select name="memberlist" id="memberlist"></select>
+      <br />
+      <br />
+      <input id="nextButton" type="button" value="次へ" onclick="nextButton()" />
+  </body>
+  <script>
+    var time;
+    var sendId;
+    
+    /* ページ読み込み処理 */
+    function pageLoad() {
+    	// IDを日付と読み込み日時として生成する
+    	time = new Date().getTime().toString();
+    	sendId = new Date().getTime().toString();
+    	
+    	// メンバー一覧を取得
+    	createMemberList();
+    }
+    /* 登録しているメンバーの一覧の取得 */
+    function createMemberList() {
+    	// 選択可能なメンバー一覧をJSONで取得要求
+    	var memberurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=2";
+    	fetch(memberurl)
+    		.then(function(response) {
+    			return response.json();
+    		})
+    		.then(function(membersJson) {
+    			// console.log(membersJson);
+    			// console.log(membersJson.length);
+    			// メンバー一覧のselect要素を取得する
+				const selectmemberName = document.getElementById('memberlist');
+    			
+    			for (var i=0; i < membersJson.length; i++) {
+    				var memberData = membersJson[i];
+    				var option = document.createElement('option');
+    				option.value = memberData.memberID;
+    				option.textContent = memberData.name + "(" + memberData.nickname + ")";
+    				selectmemberName.appendChild(option);
+    			}
+    	});
+    }
+    /* 画面遷移を実施する */
+    function nextButton() {
+    	// クエリを作成
+    	var selectedMemberValue = document.getElementById('memberlist').value;
+    	var query = "?" + "id=" + sendId + "&" + "member=" + selectedMemberValue;
+    	location.href = "./action.html" + query;
+    }
+  </script>
+</html>
