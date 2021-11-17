@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>みらいのライブ―LEDを光らせて応援しよう！</title>
+  </head>
+  <body onLoad="pageLoad()">
+    <img src="./image/ST_Skeleton_onWhite.png"  />
+    <h2>1.応援したいメンバーを選んでね！</h2>
+    <select name="memberlist" id="memberlist"></select>
+    <br />
+    <br />
+    <h2>2.「LED」の動きを選んでね！</h2>
+    <select name="actionlist" id="actionlist"></select>
+    <br />
+    <br />
+    <h2>3.色を選んでね！</h2>
+    <select name="colorlist" id="colorlist" onchange="selectColorList()"></select>
+    <br />
+    <br />
+    <label>送る色: </label><input type="color" id="selectColor" value="" />
+    <br />
+    <br />
+    <input id="sendButton" type="button" value="送信" width="300" onclick="doPost()" />
+  </body>
+  <script>
+    var time;
+    var sendId;
+    var selectColorArray = [];
+    /* ページ読み込み処理 */
+    function pageLoad() {
+    	// IDを日付と読み込み日時として生成する
+    	time = new Date().getTime().toString();
+    	sendId = new Date().getTime().toString();
+    	
+    	// メンバー一覧を取得
+    	createMemberList();
+    	
+    	// 選択できるLEDの動き一覧を取得
+    	createLEDActionList();
+    	
+    	// 選択可能な色一覧を取得
+    	createColorList();
+    }
+    /* 登録しているメンバーの一覧の取得 */
+    function createMemberList() {
+    	// 選択可能なメンバー一覧をJSONで取得要求
+    	var memberurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=2";
+    	fetch(memberurl)
+    		.then(function(response) {
+    			return response.json();
+    		})
+    		.then(function(membersJson) {
+    			console.log(membersJson);
+    			console.log(membersJson.length);
+    			// メンバー一覧のselect要素を取得する
+				const selectmemberName = document.getElementById('memberlist');
+    			
+    			for (var i=0; i < membersJson.length; i++) {
+    				var memberData = membersJson[i];
+    				var option = document.createElement('option');
+    				option.value = memberData.memberID;
+    				option.textContent = memberData.name + "(" + memberData.nickname + ")";
+    				selectmemberName.appendChild(option);
+    			}
+    	});
+    }
+    /* 登録しているLED動作の一覧取得 */
+    function createLEDActionList() {
+    	// 選択可能な動作一覧をJSONで取得要求
+    	var actionurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=4";
+    	fetch(actionurl)
+    		.then(function(response) {
+    			return response.json();
+    		})
+    		.then(function(actionsJson) {
+    			// 一覧のselect要素を取得する
+				const selectName = document.getElementById('actionlist');
+    			
+    			for (var i=0; i < actionsJson.length; i++) {
+    				var actionData = actionsJson[i];
+    				var option = document.createElement('option');
+    				option.value = actionData.actionID;
+    				option.textContent = actionData.displayName;
+    				selectName.appendChild(option);
+    			}
+    	});
+    }
+    /* 登録している色一覧取得 */
+    function createColorList() {
+    	// 選択可能な動作一覧をJSONで取得要求
+    	var colorurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=3";
+    	fetch(colorurl)
+    		.then(function(response) {
+    			return response.json();
+    		})
+    		.then(function(colorsJson) {
+    			// 一覧のselect要素を取得する
+				const selectName = document.getElementById('colorlist');
+    			
+    			for (var i=0; i < colorsJson.length; i++) {
+    				var colorData = colorsJson[i];
+    				var option   = document.createElement('option');
+    				selectColorArray.push(colorData.rgb);
+     				option.value = colorData.colorID;
+    				option.textContent = colorData.displayName;
+    				selectName.appendChild(option);
+    			}
+    			// 初期値をセット
+    			selectName.selectedIndex = 0;
+    			document.getElementById('selectColor').value = selectColorArray[0]; 
+    	});
+    }
+    /* 色選択時処理 */
+    function selectColorList() {
+    	var selectedColor = document.getElementById('colorlist');
+    	var inputColor = document.getElementById('selectColor');
+    	var selectedIndex = selectedColor.selectedIndex;
+    	inputColor.value = selectColorArray[selectedIndex];
+    }
+    /* ポスト処理を実施する */
+    function doPost() {
+    	// クエリを作成
+    	var selectedMemberValue = document.getElementById('memberlist').value;
+    	var selectedActionValue = document.getElementById('actionlist').value;
+    	var selectedColorValue =  document.getElementById('colorlist').value;
+    	
+    	var query = "?req=0" + "&" + "ID=" + sendId + "&" + "member=" + selectedMemberValue + "&" + "color=" + selectedColorValue + "&" + "action=" + selectedActionValue;
+    	var url = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec" + query;
+    	fetch(url);
+    	alert('送ったよ!');
+    }
+  </script>
+</html>
