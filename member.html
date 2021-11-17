@@ -14,18 +14,18 @@
     <br />
     <br />
     <h2>3.色を選んでね！</h2>
-    <select name="colorlist" id="colorlist"></select>
+    <select name="colorlist" id="colorlist" onchange="selectColorList()"></select>
     <br />
     <br />
-    <input id="sendButton" type="button" value="送信" onclick="doPost()" />
+    <label>送る色: </label><input type="color" id="selectColor" value="" />
     <br />
     <br />
-    <p id="selectedColor"></p>
+    <input id="sendButton" type="button" value="送信" width="300" onclick="doPost()" />
   </body>
   <script>
     var time;
     var sendId;
-    
+    var selectColorArray = [];
     /* ページ読み込み処理 */
     function pageLoad() {
     	// IDを日付と読み込み日時として生成する
@@ -100,11 +100,22 @@
     			for (var i=0; i < colorsJson.length; i++) {
     				var colorData = colorsJson[i];
     				var option   = document.createElement('option');
+    				selectColorArray.push(colorData.rgb);
      				option.value = colorData.colorID;
     				option.textContent = colorData.displayName;
     				selectName.appendChild(option);
     			}
+    			// 初期値をセット
+    			selectName.selectedIndex = 0;
+    			document.getElementById('selectColor').value = selectColorArray[0]; 
     	});
+    }
+    /* 色選択時処理 */
+    function selectColorList() {
+    	var selectedColor = document.getElementById('colorlist');
+    	var inputColor = document.getElementById('selectColor');
+    	var selectedIndex = selectedColor.selectedIndex;
+    	inputColor.value = selectColorArray[selectedIndex];
     }
     /* ポスト処理を実施する */
     function doPost() {
@@ -116,6 +127,7 @@
     	var query = "?req=0" + "&" + "ID=" + sendId + "&" + "member=" + selectedMemberValue + "&" + "color=" + selectedColorValue + "&" + "action=" + selectedActionValue;
     	var url = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec" + query;
     	fetch(url);
+    	alert('送ったよ!');
     }
   </script>
 </html>

@@ -6,43 +6,45 @@
   <body onLoad="pageLoad()">
     <img src="./image/ST_Skeleton_onWhite.png"  />
     <h2>LEDの「動作」を選択してください</h2>
-      <select name="actionlist" id="actionlist"></select>
+      <select name="memberlist" id="memberlist"></select>
       <br />
       <br />
-      <input id="nextButton" type="button" value="次へ" onclick="nextButton()" />
+      <input id="nextButton" type="button" value="次へ" onclick="buttonClick()" />
   </body>
   <script>
-    var query;
+    var time;
+    var sendId;
+    
     /* ページ読み込み処理 */
     function pageLoad() {
-    	createLEDActionList();
-    	query = window.location.search;
+    	// IDを日付と読み込み日時として生成する
+    	time = new Date().getTime().toString();
+    	sendId = new Date().getTime().toString();
+    	// メンバー一覧を取得
+    	createMemberList();
     }
-    /* 登録しているLED動作の一覧取得 */
-    function createLEDActionList() {
-    	// 選択可能な動作一覧をJSONで取得要求
-    	var actionurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=4";
-    	fetch(actionurl)
+    /* 登録しているメンバーの一覧 */
+    function createMemberList() {
+    	// 選択可能なメンバー一覧をJSONで取得要求
+    	var memberurl = "https://script.google.com/macros/s/AKfycbxl-a1NaH5rzu2Ddo9Ora7UN7wixc8p9c4RUmLUXlOoAly_Twg/exec?req=2";
+    	fetch(memberurl)
     		.then(function(response) {
     			return response.json();
     		})
-    		.then(function(actionsJson) {
-    			// 一覧のselect要素を取得する
-				const selectName = document.getElementById('actionlist');
+    		.then(function(membersJson) {
+    			// console.log(membersJson);
+    			// console.log(membersJson.length);
+    			// メンバー一覧のselect要素を取得する
+				const selectmemberName = document.getElementById('memberlist');
     			
-    			for (var i=0; i < actionsJson.length; i++) {
-    				var actionData = actionsJson[i];
+    			for (var i=0; i < membersJson.length; i++) {
+    				var memberData = membersJson[i];
     				var option = document.createElement('option');
-    				option.value = actionData.actionID;
-    				option.textContent = actionData.displayName;
-    				selectName.appendChild(option);
+    				option.value = memberData.memberID;
+    				option.textContent = memberData.name + "(" + memberData.nickname + ")";
+    				selectmemberName.appendChild(option);
     			}
     	});
-    }
-    /* 次へボタン押下処理 */
-    function nextButton() {
-    	var selectedActionValue = document.getElementById('actionlist').value;
-    	location.href = "./sender.html" + query + "&" + "action=" + selectedActionValue;
     }
   </script>
 </html>
